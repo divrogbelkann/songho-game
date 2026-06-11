@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Songho - Version locale</title>
+    <style>
+        * {
+            user-select: none;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(145deg, #2e5e3b 0%, #1d3e2a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .main-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            align-items: flex-start;
+        }
+        .game-container {
+            background: #c9a87b;
+            background-image: radial-gradient(circle at 25% 40%, rgba(210, 170, 110, 0.6) 2%, transparent 2.5%);
+            background-size: 28px 28px;
+            border-radius: 80px 80px 60px 60px;
+            padding: 30px 20px 20px 20px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.5), inset 0 1px 4px rgba(255,255,200,0.8);
+            border-bottom: 6px solid #8b5a2b;
+        }
+        .board {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: #b87c4a;
+            padding: 20px 35px;
+            border-radius: 60px;
+            box-shadow: inset 0 0 0 2px #e7c8a0, inset 0 0 0 6px #9b5e2c;
+        }
+        .row {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        .cell {
+            width: 80px;
+            height: 90px;
+            background: #f9e2b7;
+            background: radial-gradient(ellipse at 30% 35%, #fff0d0, #ecd9b4);
+            border-radius: 50% 50% 40% 40%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 28px;
+            color: #4a2a12;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.2), 0 5px 0 #9b6a38;
+            cursor: pointer;
+            transition: 0.07s linear;
+            font-family: monospace;
+            position: relative;
+        }
+        .cell:active {
+            transform: translateY(3px);
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.2), 0 2px 0 #9b6a38;
+        }
+        .cell.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            filter: grayscale(0.1);
+            transform: none;
+        }
+        .cell span:first-child {
+            font-size: 32px;
+            font-weight: 800;
+        }
+        .cell small {
+            font-size: 12px;
+            background: #8b5a2b80;
+            padding: 2px 8px;
+            border-radius: 20px;
+            color: white;
+            margin-top: 6px;
+        }
+        .player-label {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: #2c221b;
+            display: inline-block;
+            padding: 6px 25px;
+            border-radius: 40px;
+            color: #f7d98c;
+            margin: 5px 0 8px;
+            box-shadow: inset 0 -1px 0 #8b7355, 0 4px 8px black;
+        }
+        .turn-indicator {
+            text-align: center;
+            margin: 15px 0 5px;
+            font-size: 1.6rem;
+            font-weight: bold;
+            background: #ebc28e;
+            padding: 8px;
+            border-radius: 50px;
+            color: #2c4720;
+        }
+        .scores {
+            display: flex;
+            justify-content: space-between;
+            background: #e1c394;
+            padding: 10px 25px;
+            border-radius: 40px;
+            margin: 15px 0 0;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        button {
+            background: #ffcd94;
+            border: none;
+            font-size: 1.1rem;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            margin-top: 15px;
+            cursor: pointer;
+            transition: 0.1s;
+            box-shadow: 0 3px 0 #8b6946;
+        }
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #8b6946;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: #2d2b20;
+        }
+        .rules-panel {
+            background: #fef0cf;
+            padding: 20px;
+            border-radius: 45px;
+            max-width: 280px;
+            box-shadow: 0 10px 18px rgba(0,0,0,0.3);
+            border-left: 8px solid #d6962c;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .rules-panel h3 {
+            margin-top: 0;
+            color: #5a3a1a;
+            text-align: center;
+        }
+        .rules-panel p, .rules-panel li {
+            font-size: 0.95rem;
+            line-height: 1.4;
+            color: #2b2b1a;
+        }
+        .rules-panel ul {
+            padding-left: 20px;
+        }
+        @media (max-width: 850px) {
+            .cell { width: 55px; height: 70px; font-size: 22px; }
+            .cell small { font-size: 9px; }
+            .rules-panel { max-width: 240px; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="main-container">
+    <div class="game-container">
+        <div style="text-align: center;">
+            <span class="player-label">⚡ JOUEUR DU BAS (Sud) ⚡</span>
+        </div>
+        <div class="board">
+            <div class="row" id="row-top"></div>
+            <div class="row" id="row-bottom"></div>
+        </div>
+        <div class="turn-indicator" id="turn-text">Tour du Joueur du Bas</div>
+        <div class="scores">
+            <span>🏆 JOUEUR HAUT (Nord) : <span id="score-top">0</span></span>
+            <span>🏆 JOUEUR BAS (Sud) : <span id="score-bottom">0</span></span>
+        </div>
+        <button id="reset-btn">🔄 Nouvelle partie</button>
+        <div class="footer">✧ Songho Ekang • Règle : capture si 2 ou 3 graines adverses ✧</div>
+    </div>
+
+    <div class="rules-panel">
+        <h3>🎯 Comment jouer et gagner ?</h3>
+        <p><strong>But du jeu</strong> : Avoir le plus de graines à la fin de la partie (celles capturées + celles restant dans sa rangée).</p>
+        <p><strong>Déroulement</strong> :</p>
+        <ul>
+            <li>Chaque case contient <strong>5 graines</strong> au début.</li>
+            <li>À votre tour, prenez <strong>toutes les graines</strong> d’une de vos cases.</li>
+            <li>Distribuez-les une à une dans les cases suivantes (dans le sens horaire, y compris chez l’adversaire).</li>
+            <li>Si la <strong>dernière graine</strong> tombe dans une case <strong>adverse</strong> qui contient <strong>2 ou 3 graines</strong> après dépôt → vous <strong>capturez</strong> ces graines (elles vont à votre score).</li>
+            <li>Capture en chaîne : les cases adjacentes avec 2 ou 3 graines sont aussi capturées.</li>
+        </ul>
+        <p><strong>Fin de partie</strong> : Un joueur ne peut plus jouer (toutes ses cases vides). Le <strong>vainqueur</strong> est celui qui totalise le plus de graines (ses propres graines restantes + captures).</p>
+        <p><em>Astuce : contrôlez les cases à 2 ou 3 graines pour forcer les captures !</em></p>
+    </div>
+</div>
+
+<script>
+    // ---------- Configuration ----------
+    const ROWS = 2;
+    const COLS = 7;
+    const INIT_SEEDS = 5;
+    
+    let board = [
+        Array(COLS).fill(INIT_SEEDS),
+        Array(COLS).fill(INIT_SEEDS)
+    ];
+    let currentPlayer = 1;
+    let gameOver = false;
+    let captures = [0, 0];
+
+    const rowTop = document.getElementById('row-top');
+    const rowBottom = document.getElementById('row-bottom');
+    const turnText = document.getElementById('turn-text');
+    const scoreTopSpan = document.getElementById('score-top');
+    const scoreBottomSpan = document.getElementById('score-bottom');
+    const resetBtn = document.getElementById('reset-btn');
+
+    function computeScoreFromBoard() {
+        let topSeeds = board[0].reduce((a,b)=>a+b,0);
+        let bottomSeeds = board[1].reduce((a,b)=>a+b,0);
+        scoreTopSpan.innerText = captures[0] + topSeeds;
+        scoreBottomSpan.innerText = captures[1] + bottomSeeds;
+    }
+
+    function hasNoSeeds(playerRow) {
+        return board[playerRow].every(seeds => seeds === 0);
+    }
+
+    function checkGameOver() {
+        if (hasNoSeeds(0)) {
+            gameOver = true;
+            turnText.innerText = `🏁 FIN - Joueur du BAS gagne ! 🏁`;
+            return true;
+        }
+        if (hasNoSeeds(1)) {
+            gameOver = true;
+            turnText.innerText = `🏁 FIN - Joueur du HAUT gagne ! 🏁`;
+            return true;
+        }
+        return false;
+    }
+
+    function makeMove(row, col) {
+        if (gameOver) return false;
+        if (row !== currentPlayer) return false;
+        if (board[row][col] === 0) return false;
+        
+        let seeds = board[row][col];
+        board[row][col] = 0;
+        
+        let currentRow = row;
+        let currentCol = col;
+        
+        for (let i = 0; i < seeds; i++) {
+            if (currentCol === COLS-1) {
+                currentCol = 0;
+                currentRow = 1 - currentRow;
+            } else {
+                currentCol++;
+            }
+            board[currentRow][currentCol]++;
+        }
+        
+        const lastRow = currentRow;
+        const lastCol = currentCol;
+        
+        if (lastRow !== row) {
+            const seedsInLast = board[lastRow][lastCol];
+            if (seedsInLast === 2 || seedsInLast === 3) {
+                captures[lastRow] += board[lastRow][lastCol];
+                board[lastRow][lastCol] = 0;
+                
+                let extraCol = lastCol - 1;
+                while (extraCol >= 0 && (board[lastRow][extraCol] === 2 || board[lastRow][extraCol] === 3)) {
+                    captures[lastRow] += board[lastRow][extraCol];
+                    board[lastRow][extraCol] = 0;
+                    extraCol--;
+                }
+                extraCol = lastCol + 1;
+                while (extraCol < COLS && (board[lastRow][extraCol] === 2 || board[lastRow][extraCol] === 3)) {
+                    captures[lastRow] += board[lastRow][extraCol];
+                    board[lastRow][extraCol] = 0;
+                    extraCol++;
+                }
+            }
+        }
+        
+        const opponent = 1 - currentPlayer;
+        if (hasNoSeeds(opponent)) {
+            gameOver = true;
+            render();
+            computeScoreFromBoard();
+            turnText.innerText = currentPlayer === 1 ? "🏆 Joueur BAS gagne !" : "🏆 Joueur HAUT gagne !";
+            return true;
+        }
+        
+        currentPlayer = opponent;
+        
+        if (hasNoSeeds(currentPlayer)) {
+            gameOver = true;
+            render();
+            computeScoreFromBoard();
+            turnText.innerText = (1-currentPlayer) === 1 ? "🏆 Joueur BAS gagne !" : "🏆 Joueur HAUT gagne !";
+            return true;
+        }
+        
+        render();
+        return true;
+    }
+    
+    function render() {
+        rowTop.innerHTML = '';
+        rowBottom.innerHTML = '';
+        
+        for (let c = 0; c < COLS; c++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            if (gameOver) cell.classList.add('disabled');
+            else if (currentPlayer !== 0) cell.classList.add('disabled');
+            else if (board[0][c] === 0) cell.classList.add('disabled');
+            cell.innerHTML = `<span>${board[0][c]}</span><small>${c+1}</small>`;
+            cell.addEventListener('click', (function(col) { 
+                return function() { if(!gameOver && currentPlayer===0 && board[0][col]!==0) makeMove(0, col); render(); computeScoreFromBoard(); if(!gameOver) turnText.innerText = currentPlayer===1 ? "🎯 Tour : Joueur du BAS" : "🎯 Tour : Joueur du HAUT"; if(gameOver) checkGameOver(); };
+            })(c));
+            rowTop.appendChild(cell);
+        }
+        
+        for (let c = 0; c < COLS; c++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            if (gameOver) cell.classList.add('disabled');
+            else if (currentPlayer !== 1) cell.classList.add('disabled');
+            else if (board[1][c] === 0) cell.classList.add('disabled');
+            cell.innerHTML = `<span>${board[1][c]}</span><small>${c+1}</small>`;
+            cell.addEventListener('click', (function(col) { 
+                return function() { if(!gameOver && currentPlayer===1 && board[1][col]!==0) makeMove(1, col); render(); computeScoreFromBoard(); if(!gameOver) turnText.innerText = currentPlayer===1 ? "🎯 Tour : Joueur du BAS" : "🎯 Tour : Joueur du HAUT"; if(gameOver) checkGameOver(); };
+            })(c));
+            rowBottom.appendChild(cell);
+        }
+        
+        computeScoreFromBoard();
+        if (!gameOver) turnText.innerText = currentPlayer === 1 ? "🎯 Tour : Joueur du BAS (Sud)" : "🎯 Tour : Joueur du HAUT (Nord)";
+    }
+    
+    function resetGame() {
+        board = [
+            Array(COLS).fill(INIT_SEEDS),
+            Array(COLS).fill(INIT_SEEDS)
+        ];
+        captures = [0, 0];
+        currentPlayer = 1;
+        gameOver = false;
+        render();
+        turnText.innerText = "🎯 Tour : Joueur du BAS (Sud)";
+        computeScoreFromBoard();
+    }
+    
+    resetBtn.addEventListener('click', () => resetGame());
+    resetGame();
+</script>
+</body>
+</html>
